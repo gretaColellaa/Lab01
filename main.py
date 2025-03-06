@@ -7,15 +7,15 @@ class Domanda:
         self.livello = int(livello)
         self.risposta_corretta = risposta_corretta
         self.risposte = [risposta_corretta] + risposte_errate
-        random.shuffle(self.risposte)
+        random.shuffle(self.risposte) #le mette in disordine già il costruttore
 
-    def mostra_domanda(self):
-        print(f"Livello {self.livello}) {self.testo}")
-        for i, risposta in enumerate(self.risposte, 1):
-            print(f"\t{i}. {risposta}")
+    def mostra_domanda(self):                                   #enumerate(self.risposte, 1) genera coppie (indice, risposta), partendo da 1.
+            print(f"Livello {self.livello}) {self.testo}")      #Il \t (tabulazione) rende la formattazione più leggibile.
+            for i, risposta in enumerate(self.risposte, 1):     #Le risposte sono già mescolate casualmente nel costruttore (__init__).
+                print(f"\t{i}. {risposta}")
 
     def verifica_risposta(self, scelta):
-        return self.risposte[scelta - 1] == self.risposta_corretta
+        return self.risposte[scelta - 1] == self.risposta_corretta #return true se corretta
 
 
 class Game:
@@ -28,13 +28,20 @@ class Game:
 
     def carica_domande(self):
         domande = {}
-        with open(self.file_domande, encoding='utf-8') as f:
-            lines = [line.strip() for line in f.readlines() if line.strip()]
+        with open(self.file_domande, encoding='utf-8') as f:                            # open(self.file_domande, encoding='utf-8') apre il file di testo in modalità lettura (r di default).
+                                                                                        #encoding='utf-8' garantisce che il file venga letto correttamente, evitando problemi con caratteri speciali (come accenti é, à, ò).
+                                                                                        #with open(...) as f: assicura che il file venga chiuso automaticamente alla fine, anche in caso di errori.
+
+            lines = [line.strip() for line in f.readlines() if line.strip()]            #f.readlines() legge tutte le righe del file e le restituisce come una lista.
+                                                                                        #line.strip() rimuove eventuali spazi o caratteri di nuova linea (\n) all’inizio e alla fine di ogni riga.
+                                                                                        #if line.strip() esclude le righe vuote. Se line.strip() restituisce una stringa vuota (""), quella riga non viene inclusa nella lista.
 
         for i in range(0, len(lines), 6):
             testo, livello, corretta, *errate = lines[i:i + 6]
             livello = int(livello)
-            if livello not in domande:
+            if livello not in domande:                                                  #domande è un dizionario con chiavi = livelli di difficoltà e valori = liste di domande per quel livello.
+                                                                                        #Se il livello non è ancora nel dizionario, viene aggiunto con una lista vuota.
+
                 domande[livello] = []
             domande[livello].append(Domanda(testo, livello, corretta, errate))
 
@@ -46,7 +53,7 @@ class Game:
             with open(self.file_punteggi, encoding='utf-8') as f:
                 for line in f:
                     parts = line.strip().split()
-                    if len(parts) == 2 and parts[1].isdigit():
+                    if len(parts) == 2 and parts[1].isdigit():              #parts[1].isdigit() verifica che il secondo valore sia composto solo da cifre (0-9), evitando errori nel cast a int.
                         punteggi.append((parts[0], int(parts[1])))
         except FileNotFoundError:
             pass
@@ -64,7 +71,7 @@ class Game:
         punteggio = 0
 
         while livello in self.domande:
-            domanda = random.choice(self.domande[livello])
+            domanda = random.choice(self.domande[livello]) #prende una domanda a caso dal dizionario domande nella lisat di domande del livello chiesto
             domanda.mostra_domanda()
 
             try:
